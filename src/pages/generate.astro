@@ -4,7 +4,6 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
     <div class="container mx-auto p-6 space-y-6">
-        <!-- Input section -->
         <div class="flex gap-4 items-center justify-center">
             <input 
                 id="user-prompt" 
@@ -20,9 +19,7 @@ import Layout from '../layouts/Layout.astro';
             </button>
         </div>
 
-        <!-- Output section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- SVG Preview -->
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-header bg-base-200 px-4 py-2">
                     <h3 class="text-lg font-semibold">SVG Preview</h3>
@@ -37,7 +34,6 @@ import Layout from '../layouts/Layout.astro';
                 </div>
             </div>
 
-            <!-- SVG Code -->
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-header bg-base-200 px-4 py-2">
                     <h3 class="text-lg font-semibold">SVG Code</h3>
