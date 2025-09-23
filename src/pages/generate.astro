@@ -172,5 +172,30 @@ if (editButton) {
         }
     });
 
+    const saveButton = document.getElementById("save-button");
+    async function saveSVG(params) {
+        const res = await fetch("/api/saveSVG", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params),
+        });
+        const data = await res.json();
+        return data;
+    }
+    if (saveButton) {
+        saveButton.addEventListener("click", async () => {
+            const name = prompt("Entrez un nom pour le SVG :");
+            const svgOutput = document.getElementById("svg-output")?.textContent;
+            console.log("Sauvegarde du SVG : ", JSON.stringify(svgOutput));
+            
+            const params = {
+                name: name,
+                code_svg: svgOutput || "<svg></svg>",
+                chat_history: JSON.stringify(promptList),
+            };
+            await saveSVG(params);
+        });
+    }
+
 
 </script>
