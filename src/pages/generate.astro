@@ -109,10 +109,13 @@ import Layout from '../layouts/Layout.astro';
     svgContainer.innerHTML = aiResponse.content;
     // Réactiver les boutons
     generateButton.disabled = false;
-    editButton.disabled = false;$
+    editButton.disabled = false;
+    }
 
     
     async function handleEdit() {
+    const generateButton = document.getElementById("generate-button");
+    const editButton = document.getElementById("edit-button");
     let prompt = "";
     let aiResponse = "";
     const promptElement = document.getElementById("user-prompt");
@@ -143,10 +146,11 @@ import Layout from '../layouts/Layout.astro';
     console.log("Historique des prompts : ", promptList);
 }
 
+const editButton = document.getElementById("edit-button");
 if (editButton) {
     editButton.addEventListener("click", handleEdit);
 }
-}
+
 
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
