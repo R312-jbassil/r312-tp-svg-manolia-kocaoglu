@@ -1,5 +1,9 @@
 ---
 import "../styles/global.css";
+import { ui } from "../i18n/ui.js";
+
+const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
+console.log('Locale in index:', locale);
 ---
 <!doctype html>
 <html lang="en" class="h-full" data-theme="nord">
@@ -12,9 +16,9 @@ import "../styles/global.css";
 	</head>
 	<body class="h-full">
 		<ul class="menu menu-horizontal bg-base-200">
-			<li><a href="/">Home</a></li>
-			<li><a href="generate">Generator</a></li>
-			<li><a href="gallery">Gallery</a></li>
+			<li><a href="/">{ui[locale].nav.home}</a></li>
+			<li><a href="generate">{ui[locale].nav.generator}</a></li>
+			<li><a href="gallery">{ui[locale].nav.gallery}</a></li>
 			<form method="POST" action={Astro.url.pathname}>
 				<select name="language" class="select" onchange="this.form.submit()">
 					<option disabled selected="true">Language</option>

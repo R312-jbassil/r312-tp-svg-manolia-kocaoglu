@@ -1,5 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { ui } from "../i18n/ui.js";
+
+const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
+console.log('Locale in index:', locale);
 ---
 
 <Layout>
@@ -8,44 +12,44 @@ import Layout from '../layouts/Layout.astro';
             <input 
                 id="user-prompt" 
                 type="text" 
-                placeholder="Describe your SVG..." 
+                placeholder= {ui[locale].generator.promptLabel}
                 class="input input-bordered input-lg flex-1 max-w-md focus:input-primary" 
             />
             <button 
               id="generate-button" 
               class="btn btn-primary btn-lg hover:bg-primary-focus"
             >
-              Generate
+            {ui[locale].generator.generateButton}
             </button>
 
-            <button class="btn btn-secondary m-2" id="edit-button">Edit</button>
-            <button class="btn btn-secondary m-2" id="save-button">Save</button>
+            <button class="btn btn-secondary m-2" id="edit-button">{ui[locale].generator.editButton}</button>
+            <button class="btn btn-secondary m-2" id="save-button">{ui[locale].generator.saveButton}</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-header bg-base-200 px-4 py-2">
-                    <h3 class="text-lg font-semibold">SVG Preview</h3>
+                    <h3 class="text-lg font-semibold">{ui[locale].generator.preview}</h3>
                 </div>
                 <div class="card-body">
                     <div 
                         id="svg-container" 
                         class="min-h-64 border-2 border-dashed border-base-300 rounded-lg flex items-center justify-center bg-base-50"
                     >
-                        <span class="text-base-content/50">SVG will appear here</span>
+                        <span class="text-base-content/50">{ui[locale].generator.contentPlaceholder}</span>
                     </div>
                 </div>
             </div>
 
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-header bg-base-200 px-4 py-2">
-                    <h3 class="text-lg font-semibold">SVG Code</h3>
+                    <h3 class="text-lg font-semibold">{ui[locale].generator.code}</h3>
                 </div>
                 <div class="card-body">
                     <pre 
                         id="svg-output" 
                         class="bg-base-200 p-4 rounded-lg overflow-auto min-h-64 text-sm"
-                    >SVG code will appear here</pre>
+                    >{ui[locale].generator.codePlaceholder}</pre>
                 </div>
             </div>
         </div>

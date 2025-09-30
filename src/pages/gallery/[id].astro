@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import pb from "../../utils/pb";
 import { Collections, type SvgRecord } from "../../utils/pocketbase-types";
+import { ui } from "../../i18n/ui.js";
 
 const id = Astro.params.id;
 console.log("Fetching SVG with ID:", id);
@@ -11,6 +12,9 @@ const svg: SvgRecord = await pb.collection(Collections.Save).getOne(id);
 const chat_history = JSON.parse(svg?.chat_history || "[]");
 console.log('chqt_history:', chat_history);
 
+const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
+console.log('Locale in index:', locale);
+
 ---
 <Layout title={`SVG - ${svg.name}`}>
     <main class="container mx-auto px-4 py-8">
@@ -19,7 +23,7 @@ console.log('chqt_history:', chat_history);
             
             {svg.description && (
                 <div class="mb-6">
-                    <h2 class="text-xl font-semibold mb-2">Description</h2>
+                    <h2 class="text-xl font-semibold mb-2">{ui[locale].id.description}</h2>
                     <p class="text-gray-700">{svg.description}</p>
                 </div>
             )}
@@ -28,7 +32,7 @@ console.log('chqt_history:', chat_history);
             <div class="flex gap-6 h-[calc(100vh-300px)]">
                 <!-- Section Chat - Gauche -->
                 <div class="w-1/2 flex flex-col">
-                    <h2 class="text-xl font-semibold mb-4">Chat History</h2>
+                    <h2 class="text-xl font-semibold mb-4">{ui[locale].id.chatHistory}</h2>
                     <div id="chat-history" class="flex flex-col gap-4 flex-1 overflow-y-auto p-4 bg-gray-50 rounded-lg border mb-4">
                         {
                             (Array.isArray(chat_history) && chat_history.length > 0) ? (
@@ -41,7 +45,7 @@ console.log('chqt_history:', chat_history);
                                     </div>
                                 ))
                             ) : (
-                                <span class="text-error">Aucun historique de chat.</span>
+                                <span class="text-error">{ui[locale].id.noHistory}</span>
                             )
                         }
                     </div>
@@ -51,15 +55,15 @@ console.log('chqt_history:', chat_history);
                         <input type="hidden" name="history" id="history-input" value={JSON.stringify(chat_history)} />
                         <input type="hidden" name="id" value={svg?.id} />
                         <div class="flex items-center gap-2">
-                            <input id="prompt-input" name="editPrompt" type="text" class="input input-bordered flex-grow" placeholder="Enter a prompt to edit the SVG..." />
-                            <button class="btn btn-primary" type="submit" id="submit-btn">Edit</button>
+                            <input id="prompt-input" name="editPrompt" type="text" class="input input-bordered flex-grow" placeholder= {ui[locale].id.promptEdit}/>
+                            <button class="btn btn-primary" type="submit" id="submit-btn">{ui[locale].generator.editButton}</button>
                         </div>
                     </form>
                 </div>
                 
                 <!-- Section SVG - Droite -->
                 <div class="w-1/2 flex flex-col">
-                    <h2 class="text-xl font-semibold mb-4">SVG Preview</h2>
+                    <h2 class="text-xl font-semibold mb-4">{ui[locale].generator.preview}</h2>
                     <div class="flex-1 bg-white border rounded-lg p-6 shadow-lg overflow-auto">
                         <div id="svg-preview" class="flex justify-center items-center h-full">
                             <div class="max-w-full max-h-full" set:html={svg.code_svg} />
@@ -70,7 +74,7 @@ console.log('chqt_history:', chat_history);
             
             <div class="mt-6">
                 <a href="/gallery" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
-                    Retour à la galerie
+                    {ui[locale].id.galleryBack}
                 </a>
             </div>
         </div>

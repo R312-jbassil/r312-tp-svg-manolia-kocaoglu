@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getSvg } from '../../js/backend.mjs';
+import { ui } from "../../i18n/ui.js";
 
 let svgRecords = [];
 try {
@@ -9,21 +10,24 @@ try {
 } catch (error) {
     console.error('Erreur lors du chargement des SVGs:', error);
 }
+const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
+console.log('Locale in index:', locale);
+
 ---
 
 <Layout>
     <div class="container mx-auto p-6">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-primary mb-2">SVG Gallery</h1>
-            <p class="text-lg text-base-content/70">Découvrez toutes vos créations SVG</p>
+            <h1 class="text-4xl font-bold text-primary mb-2">{ui[locale].gallery.title}</h1>
+            <p class="text-lg text-base-content/70">{ui[locale].gallery.description}</p>
             <div class="divider"></div>
         </div>
 
         <div class="stats shadow mb-6 w-full">
             <div class="stat place-items-center">
-                <div class="stat-title">Total des créations</div>
+                <div class="stat-title">{ui[locale].gallery.allCreation}</div>
                 <div class="stat-value text-primary">{svgRecords.length}</div>
-                <div class="stat-desc">SVGs générés</div>
+                <div class="stat-desc">{ui[locale].gallery.svgCount}</div>
             </div>
         </div>
 
@@ -51,9 +55,9 @@ try {
                             
                             <!-- Metadata -->
                             <div class="text-xs text-base-content/60 space-y-1">
-                                <p>Créé le: {new Date(record.created).toLocaleDateString('fr-FR')}</p>
+                                <p>{ui[locale].gallery.creationDate} {new Date(record.created).toLocaleDateString('fr-FR')}</p>
                                 <p>ID: {record.id.substring(0, 8)}...</p>
-                                <a href={`/gallery/${record.id}`} class="link link-primary text-xs">Voir détails</a>
+                                <a href={`/gallery/${record.id}`} class="link link-primary text-xs">{ui[locale].gallery.seeDetails}</a>
                             </div>
                             
                             <!-- Actions -->
@@ -67,7 +71,7 @@ try {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
-                                    Voir
+                                    {ui[locale].gallery.seeButton}
                                 </button>
                                 <button 
                                     class="btn btn-sm btn-outline btn-success download-btn"
@@ -77,7 +81,7 @@ try {
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
-                                    Télécharger
+                                    {ui[locale].gallery.downloadButton}
                                 </button>
                             </div>
                         </div>
@@ -92,10 +96,10 @@ try {
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-24 w-24 text-base-content/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM9 3v1h6V3H9zm0 5v8h2V8H9zm4 0v8h2V8h-2z" />
                         </svg>
-                        <h3 class="text-2xl font-bold text-base-content/70">Aucune création trouvée</h3>
-                        <p class="py-4 text-base-content/50">Vous n'avez pas encore créé de SVG. Commencez par en générer un !</p>
+                        <h3 class="text-2xl font-bold text-base-content/70">{ui[locale].gallery.nothingFound}</h3>
+                        <p class="py-4 text-base-content/50">{ui[locale].gallery.noCreation}</p>
                         <a href="/generate" class="btn btn-primary">
-                            Créer un SVG
+                            {ui[locale].gallery.createSVG}
                         </a>
                     </div>
                 </div>
@@ -108,7 +112,7 @@ try {
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Créer un nouveau SVG
+                {ui[locale].gallery.createNew}
             </a>
         </div>
     </div>
@@ -116,19 +120,19 @@ try {
 
     <dialog id="svg_modal" class="modal">
         <div class="modal-box w-11/12 max-w-4xl">
-            <h3 id="modal-title" class="font-bold text-lg mb-4">Aperçu SVG</h3>
+            <h3 id="modal-title" class="font-bold text-lg mb-4">{ui[locale].generator.preview}</h3>
             <div id="modal-svg-container" class="flex items-center justify-center min-h-96 bg-base-200 rounded-lg p-4">
 
             </div>
             <div class="modal-action">
-                <button id="modal-download" class="btn btn-success">Télécharger</button>
+                <button id="modal-download" class="btn btn-success">{ui[locale].gallery.downloadButton}</button>
                 <form method="dialog">
-                    <button class="btn">Fermer</button>
+                    <button class="btn">{ui[locale].generator.closeButton}</button>
                 </form>
             </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-            <button>close</button>
+            <button>{ui[locale].generator.closeButton}</button>
         </form>
     </dialog>
 </Layout>
