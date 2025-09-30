@@ -15,11 +15,19 @@ import "../styles/global.css";
 			<li><a href="/">Home</a></li>
 			<li><a href="generate">Generator</a></li>
 			<li><a href="gallery">Gallery</a></li>
+			<form method="POST" action={Astro.url.pathname}>
+				<select name="language" class="select" onchange="this.form.submit()">
+					<option disabled selected="true">Language</option>
+					<option value="en">English</option>
+					<option value="fr">Français</option>
+				</select>
+			</form>
 		  </ul>
 		<div class="h-full flex flex-col min-h-0">
 			<div class="flex-1 min-h-0">
 				<slot />
 			</div>
 		</div>
+
 	</body>
 </html>
