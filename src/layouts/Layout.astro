@@ -17,25 +17,38 @@ console.log('User:', user);
 		<title>Astro Basics</title>
 	</head>
 	<body class="h-full">
-		<ul class="menu menu-horizontal bg-base-200">
-			<li><a href="/">{ui[locale].nav.home}</a></li>
-			<li><a href="generate">{ui[locale].nav.generator}</a></li>
-			<li><a href="gallery">{ui[locale].nav.gallery}</a></li>
-			<form method="POST" action={Astro.url.pathname}>
-				<select name="language" class="select" onchange="this.form.submit()">
-					<option disabled selected="true">Language</option>
-					<option value="en">English</option>
-					<option value="fr">Français</option>
-				</select>
-			</form>
-			{user && (
-				<li class="ml-auto">
+		<div class="flex items-center justify-between bg-base-200 shadow-lg rounded-lg p-4">
+			<ul class="menu menu-horizontal flex gap-4">
+				<li>
+					<a href="/" class="text-lg font-semibold hover:text-primary">{ui[locale].nav.home}</a>
+				</li>
+				<li>
+					<a href="generate" class="text-lg font-semibold hover:text-primary">{ui[locale].nav.generator}</a>
+				</li>
+				<li>
+					<a href="gallery" class="text-lg font-semibold hover:text-primary">{ui[locale].nav.gallery}</a>
+				</li>
+				<form method="POST" action={Astro.url.pathname} class="ml-4">
+					<select name="language" class="select select-bordered" onchange="this.form.submit()">
+						<option disabled selected>Language</option>
+						<option value="en">English</option>
+						<option value="fr">Français</option>
+					</select>
+				</form>
+			</ul>
+			<div class="flex gap-2">
+				{user ? (
 					<form method="POST" action="/api/logout" class="m-0 p-0">
 						<button type="submit" class="btn btn-primary btn-sm">Logout</button>
 					</form>
-				</li>
-			)}
-		</ul>
+				) : (
+					<>
+						<a href="/login" class="btn btn-secondary btn-sm">Login</a>
+						<a href="/signup" class="btn btn-primary btn-sm">Sign Up</a>
+					</>
+				)}
+			</div>
+		</div>
 		<div class="h-full flex flex-col min-h-0">
 			<div class="flex-1 min-h-0">
 				<slot />

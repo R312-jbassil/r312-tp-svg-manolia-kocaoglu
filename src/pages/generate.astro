@@ -3,23 +3,39 @@ import Layout from '../layouts/Layout.astro';
 import { ui } from "../i18n/ui.js";
 
 const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
-console.log('Locale in index:', locale);
+const user = Astro.locals.user;
+
+// DEBUG : Afficher l'utilisateur
+console.log('=== DEBUG GENERATE PAGE ===');
+console.log('User from Astro.locals:', user);
+console.log('User ID:', user?.id);
 ---
 
 <Layout>
     <div class="container mx-auto p-6 space-y-6">
+        <!-- DEBUG : Affichage utilisateur -->
+        {user ? (
+            <div class="alert alert-success">
+                <span>✅ Connecté en tant que: {user.email} (ID: {user.id})</span>
+            </div>
+        ) : (
+            <div class="alert alert-error">
+                <span>❌ Pas d'utilisateur connecté</span>
+            </div>
+        )}
+
         <div class="flex gap-4 items-center justify-center">
             <input 
                 id="user-prompt" 
                 type="text" 
-                placeholder= {ui[locale].generator.promptLabel}
+                placeholder={ui[locale].generator.promptLabel}
                 class="input input-bordered input-lg flex-1 max-w-md focus:input-primary" 
             />
             <button 
               id="generate-button" 
               class="btn btn-primary btn-lg hover:bg-primary-focus"
             >
-            {ui[locale].generator.generateButton}
+                {ui[locale].generator.generateButton}
             </button>
 
             <button class="btn btn-secondary m-2" id="edit-button">{ui[locale].generator.editButton}</button>
@@ -58,8 +74,18 @@ console.log('Locale in index:', locale);
 
 <script>
     //@ts-nocheck
-
     
+    // DEBUG : Vérifier localStorage
+    console.log('=== DEBUG SCRIPT ===');
+    const userFromStorage = localStorage.getItem("user");
+    console.log('User from localStorage:', userFromStorage);
+    if (userFromStorage) {
+        const parsedUser = JSON.parse(userFromStorage);
+        console.log('Parsed user:', parsedUser);
+        console.log('User ID:', parsedUser.id);
+    } else {
+        console.error('❌ PAS D\'UTILISATEUR DANS LOCALSTORAGE !');
+    }
     
     async function generateSVG(prompt) {
         console.log('Generating SVG for prompt:', prompt);
@@ -67,7 +93,8 @@ console.log('Locale in index:', locale);
             const res = await fetch('/api/generateSVG', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify( prompt ),
+                body: JSON.stringify(prompt),
+                credentials: 'include', // IMPORTANT pour les cookies
             });
             
             if (!res.ok) {
@@ -78,86 +105,69 @@ console.log('Locale in index:', locale);
             return data.svg;
         } catch (error) {
             console.error('Error generating SVG:', error);
-            return '<svg><text x="10" y="20" fill="red">Error generating SVG</text></svg>';
+            return { content: '<svg><text x="10" y="20" fill="red">Error generating SVG</text></svg>' };
         }
     }
 
     let promptList = []
 
     async function handleSubmit() {
-    const generateButton = document.getElementById("generate-button");
-    const editButton = document.getElementById("edit-button");
-    let prompt = "";
-    let aiResponse = "";
-    const promptElement = document.getElementById("user-prompt");
-    prompt = promptElement ? promptElement.value : "";
-    console.log("submitted: ", prompt);
-    // Réinitialiser la liste des prompts
-    promptList.length = 0; 
-    promptList.push({ role: "user", content: prompt });
-    const svgContainer = document.getElementById("svg-container");
-    // Afficher un spinner
-    svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
-    generateButton.disabled = true;
-    editButton.disabled = true;
-    let svgOutput = document.getElementById("svg-output");
-    // Appeler la fonction pour générer le SVG
-    aiResponse = await generateSVG(promptList);
-    // Extraire le SVG de la réponse
-    const svgMatch = aiResponse.content.match(/<svg[\s\S]*?<\/svg>/i);
-    aiResponse.content = svgMatch ? svgMatch[0] : "";
-    console.log("svgCode: ", aiResponse.content);
-    // Ajouter la réponse de l'IA à la liste des prompts
-    promptList.push(aiResponse);
-    // Afficher le SVG généré
-    svgOutput.textContent = aiResponse.content;
-    svgContainer.innerHTML = aiResponse.content;
-    // Réactiver les boutons
-    generateButton.disabled = false;
-    editButton.disabled = false;
+        const generateButton = document.getElementById("generate-button");
+        const editButton = document.getElementById("edit-button");
+        let prompt = "";
+        let aiResponse = "";
+        const promptElement = document.getElementById("user-prompt");
+        prompt = promptElement ? promptElement.value : "";
+        console.log("submitted: ", prompt);
+        promptList.length = 0; 
+        promptList.push({ role: "user", content: prompt });
+        const svgContainer = document.getElementById("svg-container");
+        svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
+        generateButton.disabled = true;
+        editButton.disabled = true;
+        let svgOutput = document.getElementById("svg-output");
+        aiResponse = await generateSVG(promptList);
+        const svgMatch = aiResponse.content.match(/<svg[\s\S]*?<\/svg>/i);
+        aiResponse.content = svgMatch ? svgMatch[0] : "";
+        console.log("svgCode: ", aiResponse.content);
+        promptList.push(aiResponse);
+        svgOutput.textContent = aiResponse.content;
+        svgContainer.innerHTML = aiResponse.content;
+        generateButton.disabled = false;
+        editButton.disabled = false;
     }
 
-    
     async function handleEdit() {
-    const generateButton = document.getElementById("generate-button");
+        const generateButton = document.getElementById("generate-button");
+        const editButton = document.getElementById("edit-button");
+        let prompt = "";
+        let aiResponse = "";
+        const promptElement = document.getElementById("user-prompt");
+        prompt = promptElement ? promptElement.value : "";
+        console.log("Prompt soumis : ", prompt);
+        promptList.push({ role: "user", content: prompt });
+        const svgContainer = document.getElementById("svg-container");
+        svgContainer.innerHTML += `<span class="loading loading-ring loading-xl"></span>`;
+        generateButton.disabled = true;
+        editButton.disabled = true;
+        let svgOutput = document.getElementById("svg-output");
+        aiResponse = await generateSVG(promptList);
+        const svgMatch = aiResponse.content.match(/<svg[\s\S]*?<\/svg>/i);
+        aiResponse.content = svgMatch ? svgMatch[0] : "";
+        console.log("Code SVG généré : ", aiResponse.content);
+        promptList.push(aiResponse);
+        svgOutput.textContent = aiResponse.content;
+        svgContainer.innerHTML = aiResponse.content;
+        generateButton.disabled = false;
+        editButton.disabled = false;
+        console.log("Historique des prompts : ", promptList);
+    }
+
     const editButton = document.getElementById("edit-button");
-    let prompt = "";
-    let aiResponse = "";
-    const promptElement = document.getElementById("user-prompt");
-    prompt = promptElement ? promptElement.value : "";
-    console.log("Prompt soumis : ", prompt);
-    // Ajout du prompt de l'utilisateur à la liste
-    promptList.push({ role: "user", content: prompt });
-    const svgContainer = document.getElementById("svg-container");
-    // Afficher un spinner de chargement
-    svgContainer.innerHTML += `<span class="loading loading-ring loading-xl"></span>`;
-    generateButton.disabled = true;
-    editButton.disabled = true;
-    let svgOutput = document.getElementById("svg-output");
-    // Appeler la fonction pour générer le SVG
-    aiResponse = await generateSVG(promptList);
-    // Extraire le SVG de la réponse
-    const svgMatch = aiResponse.content.match(/<svg[\s\S]*?<\/svg>/i);
-    aiResponse.content = svgMatch ? svgMatch[0] : "";
-    console.log("Code SVG généré : ", aiResponse.content);
-    // Ajouter la réponse de l'IA à la liste des prompts
-    promptList.push(aiResponse);
-    // Afficher le SVG généré
-    svgOutput.textContent = aiResponse.content;
-    svgContainer.innerHTML = aiResponse.content;
-    // Réactiver les boutons
-    generateButton.disabled = false;
-    editButton.disabled = false;
-    console.log("Historique des prompts : ", promptList);
-}
+    if (editButton) {
+        editButton.addEventListener("click", handleEdit);
+    }
 
-const editButton = document.getElementById("edit-button");
-if (editButton) {
-    editButton.addEventListener("click", handleEdit);
-}
-
-
-    // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         const generateButton = document.getElementById("generate-button");
         const promptElement = document.getElementById("user-prompt");
@@ -166,7 +176,6 @@ if (editButton) {
             generateButton.addEventListener("click", handleSubmit);
         }
         
-        // Allow Enter key to submit
         if (promptElement) {
             promptElement.addEventListener("keypress", (e) => {
                 if (e.key === 'Enter') {
@@ -177,33 +186,84 @@ if (editButton) {
     });
     
     const saveButton = document.getElementById("save-button");
-async function saveSVG(params) {
-    const res = await fetch("/api/saveSVG", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-    });
-    const data = await res.json();
-    return data;
-}
-if (saveButton) {
-    saveButton.addEventListener("click", async () => {
-        const name = prompt("Entrez un nom pour le SVG :");
-        const svgOutput = document.getElementById("svg-output")?.textContent;
-        console.log("Sauvegarde du SVG : ", JSON.stringify(svgOutput));
-        
-        // Récupérer l'utilisateur depuis le localStorage
-        const user = JSON.parse(localStorage.getItem("user"));
-        
-        const params = {
-            name: name,
-            code_svg: svgOutput || "<svg></svg>",
-            chat_history: JSON.stringify(promptList),
-            user: user.id  // ← AJOUT DE CETTE LIGNE
-        };
-        await saveSVG(params);
-    });
-}
 
+    async function saveSVG(params) {
+        console.log('=== TENTATIVE DE SAUVEGARDE ===');
+        console.log('Params envoyés:', params);
+        
+        try {
+            const res = await fetch("/api/saveSVG", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(params),
+                credentials: 'include', // IMPORTANT pour les cookies
+            });
+            
+            console.log('Response status:', res.status);
+            const data = await res.json();
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                alert('✅ SVG sauvegardé avec succès !');
+            } else {
+                alert('❌ Erreur: ' + (data.error || 'Erreur inconnue'));
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('❌ Erreur lors de la sauvegarde:', error);
+            alert('❌ Erreur réseau: ' + error.message);
+            return { success: false, error: error.message };
+        }
+    }
 
+    if (saveButton) {
+        saveButton.addEventListener("click", async () => {
+            console.log('=== BOUTON SAVE CLIQUÉ ===');
+            
+            // Vérifier l'utilisateur dans localStorage
+            const userStr = localStorage.getItem("user");
+            console.log('User string from localStorage:', userStr);
+            
+            if (!userStr) {
+                alert('❌ Erreur: Utilisateur non trouvé. Veuillez vous reconnecter.');
+                console.error('❌ PAS D\'UTILISATEUR DANS LOCALSTORAGE');
+                return;
+            }
+            
+            const user = JSON.parse(userStr);
+            console.log('User parsed:', user);
+            console.log('User ID:', user.id);
+            
+            if (!user.id) {
+                alert('❌ Erreur: ID utilisateur manquant');
+                console.error('❌ USER ID MANQUANT');
+                return;
+            }
+            
+            const name = prompt("Entrez un nom pour le SVG :");
+            if (!name) {
+                console.log('Sauvegarde annulée (pas de nom)');
+                return;
+            }
+            
+            const svgOutput = document.getElementById("svg-output")?.textContent;
+            console.log('SVG Code length:', svgOutput?.length);
+            
+            if (!svgOutput || svgOutput.trim() === '' || svgOutput === 'Le code SVG sera affiché ici') {
+                alert('❌ Erreur: Aucun SVG à sauvegarder. Générez d\'abord un SVG.');
+                return;
+            }
+            
+            const params = {
+                name: name,
+                code_svg: svgOutput,
+                chat_history: JSON.stringify(promptList),
+                user: user.id
+            };
+            
+            console.log('Params finaux:', params);
+            await saveSVG(params);
+        });
+    }
 </script>
